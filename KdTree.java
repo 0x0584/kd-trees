@@ -6,6 +6,8 @@ import edu.princeton.cs.algs4.SET;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 
+import edu.princeton.cs.algs4.Queue;
+
 public class KdTree
 {
 	private final class KdNode
@@ -67,18 +69,7 @@ public class KdTree
 
 	private void draw(KdNode root, RectHV rect) {
 		if (root != null) {
-			Point2D point = root.point;
-
-			StdDraw.setPenRadius(0.002);
-			StdDraw.setPenColor(StdDraw.BLACK);
-			point.draw();
-			// StdDraw.show();
-			// StdDraw.pause(200);
-			StdDraw.setPenRadius(0.001);
-
-			// StdOut.println("drawing >> " + point);
-
-			Point2D min, max;
+			Point2D point = root.point, min, max;
 			RectHV left, right;
 
 			if (root.is_vert) {
@@ -94,9 +85,12 @@ public class KdTree
 				left = new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), point.y());
 				right = new RectHV(rect.xmin(), point.y(), rect.xmax(), rect.ymax());
 			}
+			StdDraw.setPenRadius(0.001);
 			min.drawTo(max);
+			StdDraw.setPenRadius(0.01);
+			StdDraw.setPenColor(StdDraw.BLACK);
+			point.draw();
 			StdDraw.show();
-			// StdDraw.pause(200);
 			draw(root.left, left);
 			draw(root.right, right);
 		}
@@ -105,8 +99,6 @@ public class KdTree
 	// draw all points to standard draw
 	public void draw() {
 		StdDraw.enableDoubleBuffering();
-		StdDraw.setPenRadius(0.001);
-		StdDraw.setScale(-0.05, 1.05);
 		draw(root, new RectHV(0, 0, 1, 1));
 	}
 
@@ -144,9 +136,32 @@ public class KdTree
 		return contains(root, p);
 	}
 
+	private void range(KdNode root, RectHV query, RectHV rect, Queue<Point2D> queue) {
+		if (root == null) return;
+
+		if (query.intersects(rect)) {
+			Point2D point = root.point;
+			RectHV left, right;
+
+			if (query.contains(point))
+				queue.enqueue(point);
+			if (root.is_vert) {
+				left = new RectHV(rect.xmin(), rect.ymin(), point.x(), rect.ymax());
+				right = new RectHV(point.x(), rect.ymin(), rect.xmax(), rect.ymax());
+			} else {
+				left = new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), point.y());
+				right = new RectHV(rect.xmin(), point.y(), rect.xmax(), rect.ymax());
+			}
+			range(root.left, query, left, queue);
+			range(root.right, query, right, queue);
+		}
+	}
+
 	// all points that are inside the rectangle (or on the boundary)
 	public Iterable<Point2D> range(RectHV rect) {
-		return new SET<Point2D>();
+		Queue<Point2D> queue = new Queue<Point2D>();
+		range(root, rect, new RectHV(0, 0, 1, 1), queue);
+		return queue;
 	}
 
 	// a nearest neighbor in the set to point p; null if the set is empty
@@ -156,70 +171,15 @@ public class KdTree
 
 	// unit testing of the methods (optional)
 	public static void main(String[] args) {
-        // StdDraw.enableDoubleBuffering();
-		// StdDraw.setPenColor(StdDraw.BOOK_RED);
-		// StdDraw.setPenRadius(0.01);
-
 		In in = new In(args[0]);
-        // RectHV rect = null;
-		// Point2D tmp = null;
-
         KdTree kdtree = new KdTree();
 		while (!in.isEmpty()) {
 			double x = in.readDouble();
 			double y = in.readDouble();
-			// if (tmp == null) {
-			// 	tmp = new Point2D(x, y);
-			// 	continue;
-			// } else if (rect == null) {
-			// 	rect = new RectHV(Math.min(x, tmp.x()), Math.min(y, tmp.y()),
-			// 					  Math.max(x, tmp.x()), Math.max(y, tmp.y()));
-			// 	continue;
-			// }
 			Point2D p = new Point2D(x, y);
 			kdtree.insert(p);
-			// StdOut.println(p);
 		}
-
 		kdtree.draw();
-		StdOut.println("#####");
-
-		// StdDraw.setPenColor(StdDraw.BOOK_BLUE);
-		// StdDraw.setPenRadius(0.001);
-		// rect.draw();
-		// StdDraw.show();
-
-		// Point2D p = null;
-        // while (true) {
-        //     if (StdDraw.isMousePressed()) {
-        //         double x = StdDraw.mouseX();
-        //         double y = StdDraw.mouseY();
-		// 		p = new Point2D(x, y);
-		// 		StdOut.printf("%8.6f %8.6f\n", x, y);
-		// 		StdDraw.clear();
-		// 		StdDraw.setPenColor(StdDraw.BOOK_RED);
-		// 		StdDraw.setPenRadius(0.01);
-		// 		kdtree.draw();
-		// 		StdDraw.setPenColor(StdDraw.BOOK_BLUE);
-		// 		StdDraw.setPenRadius(0.001);
-		// 		rect.draw();
-		// 		StdDraw.setPenColor(StdDraw.GREEN);
-		// 		StdDraw.setPenRadius(0.013);
-		// 		p.draw();
-		// 		StdDraw.setPenColor(StdDraw.MAGENTA);
-		// 		for (Point2D q : kdtree.range(rect))
-		// 			q.draw();
-		// 		Point2D near = kdtree.nearest(p);
-		// 		if (near != null) {
-		// 			StdDraw.setPenColor(StdDraw.YELLOW);
-		// 			near.draw();
-		// 		}
-		// 		StdDraw.show();
-        //     } else if (p != null)
-		// 		kdtree.insert(p);
-        //     StdDraw.pause(20);
-        // }
-
 	}
 
 }
