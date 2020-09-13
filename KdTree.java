@@ -32,6 +32,25 @@ public class KdTree
 				|| (!is_vertical && point.y() > p.y());
 		}
 
+		public void drawUp() {
+			StdDraw.setPenColor(StdDraw.RED);
+			point.drawTo(new Point2D(point.x(), 1));
+		}
+
+		public void drawDown() {
+			StdDraw.setPenColor(StdDraw.RED);
+			point.drawTo(new Point2D(point.x(), 0));
+		}
+
+		public void drawLeft() {
+			StdDraw.setPenColor(StdDraw.BLUE);
+			point.drawTo(new Point2D(1, point.y()));
+		}
+
+		public void drawRight() {
+			StdDraw.setPenColor(StdDraw.BLUE);
+			point.drawTo(new Point2D(0, point.y()));
+		}
 	}
 
 	KdNode root;
@@ -46,22 +65,40 @@ public class KdTree
 	// number of points in the set
 	public int size() { return size_; }
 
-	private void draw(KdNode root) {
+	private void draw(KdNode root, RectHV rect) {
 		if (root != null) {
-			StdOut.println("drawing >> " + root.point);
+			Point2D point = root.point;
+
+			StdDraw.setPenRadius(0.002);
+			StdDraw.setPenColor(StdDraw.BLACK);
+			point.draw();
+			// StdDraw.show();
+			// StdDraw.pause(200);
+			StdDraw.setPenRadius(0.001);
+
+			// StdOut.println("drawing >> " + point);
+
+			Point2D min, max;
+			RectHV left, right;
+
 			if (root.is_vert) {
 				StdDraw.setPenColor(StdDraw.RED);
-				root.point.drawTo(new Point2D(root.point.x(), 1));
-				root.point.drawTo(new Point2D(root.point.x(), 0));
+				min = new Point2D(point.x(), rect.ymin());
+				max = new Point2D(point.x(), rect.ymax());
+				left = new RectHV(rect.xmin(), rect.ymin(), point.x(), rect.ymax());
+				right = new RectHV(point.x(), rect.ymin(), rect.xmax(), rect.ymax());
 			} else {
 				StdDraw.setPenColor(StdDraw.BLUE);
-				root.point.drawTo(new Point2D(1, root.point.y()));
-				root.point.drawTo(new Point2D(0, root.point.y()));
+				min = new Point2D(rect.xmin(), point.y());
+				max = new Point2D(rect.xmax(), point.y());
+				left = new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), point.y());
+				right = new RectHV(rect.xmin(), point.y(), rect.xmax(), rect.ymax());
 			}
+			min.drawTo(max);
 			StdDraw.show();
-			StdDraw.pause(1000);
-			draw(root.left);
-			draw(root.right);
+			// StdDraw.pause(200);
+			draw(root.left, left);
+			draw(root.right, right);
 		}
 	}
 
@@ -69,7 +106,8 @@ public class KdTree
 	public void draw() {
 		StdDraw.enableDoubleBuffering();
 		StdDraw.setPenRadius(0.001);
-		draw(root);
+		StdDraw.setScale(-0.05, 1.05);
+		draw(root, new RectHV(0, 0, 1, 1));
 	}
 
 	private KdNode make_tree(KdNode root, Point2D p, boolean is_vertical) {
@@ -140,7 +178,7 @@ public class KdTree
 			// }
 			Point2D p = new Point2D(x, y);
 			kdtree.insert(p);
-			StdOut.println(p);
+			// StdOut.println(p);
 		}
 
 		kdtree.draw();
