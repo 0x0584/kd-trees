@@ -14,6 +14,7 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.StdDraw;
+import edu.princeton.cs.algs4.StdRandom;
 
 public class NearestNeighborVisualizer {
 
@@ -35,29 +36,40 @@ public class NearestNeighborVisualizer {
 
         // process nearest neighbor queries
         StdDraw.enableDoubleBuffering();
-        while (true) {
+		int i = 0;
+        while (i < brute.points.size()) {
             // the location (x, y) of the mouse
-            double x = StdDraw.mouseX();
-            double y = StdDraw.mouseY();
-            Point2D query = new Point2D(x, y);
+            Point2D query = new Point2D(StdRandom.uniform(0.0, 1.0),
+										StdRandom.uniform(0.0, 1.0));
 
             // draw all of the points
             StdDraw.clear();
-			kdtree.draw();
+			// kdtree.draw();
             // StdDraw.setPenRadius(0.005);
 			// StdDraw.setPenColor(StdDraw.BLACK);
+			StdDraw.setPenColor(StdDraw.BLACK);
+			StdDraw.filledSquare(0.5 ,0.5, 0.5);
             StdDraw.setPenColor(StdDraw.CYAN);
             brute.draw();
 
             // draw in red the nearest neighbor (using brute-force algorithm)
-            StdDraw.setPenRadius(0.01);
-            StdDraw.setPenColor(StdDraw.ORANGE);
-            brute.nearest(query).draw();
-
             // draw in blue the nearest neighbor (using kd-tree algorithm)
-            kdtree.nearest(query).draw();
+			Point2D p = kdtree.nearest(query);
+            StdDraw.setPenColor(StdDraw.ORANGE);
+			double size = StdDraw.getPenRadius();
+            StdDraw.setPenRadius(0.015);
+			p.draw();
+            StdDraw.setPenColor(StdDraw.ORANGE);
+            StdDraw.setPenRadius(0.015);
+            brute.nearest(query).draw();
+            StdDraw.setPenColor(254, 254, 254);
+            StdDraw.setPenRadius(0.012);
+			query.draw();
+            StdDraw.setPenRadius(size);
             StdDraw.show();
-            StdDraw.pause(40);
+			StdDraw.save(args[0].split("\\.(?=[^\\.]+$)")[0] + "-near=" + i + ".png");
+			i++;
+            StdDraw.pause(100);
         }
     }
 }

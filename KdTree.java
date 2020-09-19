@@ -163,47 +163,9 @@ public class KdTree
 		return queue;
 	}
 
-	boolean set_nearest(RectHV rect, Point2D old_near, Point2D new_near, boolean left, boolean is_vert) {
-		// if (old_near != new_near) {
-		// 	if (color_picked == 0){
-		// 		color = StdDraw.getPenColor();
-		// 		StdDraw.setPenColor(StdDraw.MAGENTA);
-		// 		StdDraw.setPenRadius(0.001);
-		// 		rect.draw();
-		// 		StdDraw.setPenColor(left ? StdDraw.CYAN : StdDraw.MAGENTA);
-		// 		StdDraw.setPenRadius(0.01);
-		// 		new_near.draw();
-		// 		color_picked++;
-		// 	} else {
-		// 		StdDraw.setPenRadius(0.01 - 0.01 / color_picked);
-		// 		StdDraw.setPenColor(255, 140, (5 * color_picked) % 255);
-		// 		new_near.draw();
-		// 		color_picked++;
-		// 	}
-		// 	return true;
-		// }
-		old_near = new_near;
-		return false;
-	}
+	int counter;
 
-	void draw_if_different(Point2D tmp, Point2D nearest, Point2D champ) {
-		// if (tmp != nearest) {
-			// double size = StdDraw.getPenRadius();
-			// StdDraw.setPenRadius(0.01);
-			// java.awt.Color color = StdDraw.getPenColor();
-			// StdDraw.setPenColor(StdDraw.MAGENTA);
-			// if (nearest != null)
-			// 	nearest.draw();
-			// StdDraw.setPenColor(color);
-			// StdDraw.setPenColor(StdDraw.MAGENTA);
-			// if (champ != null)
-			// 	champ.draw();
-			// StdDraw.setPenColor(StdDraw.ORANGE);
-			// if (tmp != null)
-			// 	tmp.draw();
-			// StdDraw.setPenRadius(size);
-		// }
-	}
+	int r = 140, g = 220, b = 1;
 	private Point2D _nearest(KdNode root, Point2D p, RectHV rect, Point2D champ) {
 		if (root == null) return champ;
 
@@ -234,12 +196,10 @@ public class KdTree
 				if (p.x() < point.x()) {
 					Point2D tmp = nearest;
 					nearest = _nearest(root.left, p, left, nearest);
-					draw_if_different(tmp, nearest, champ);
 					if (tmp != nearest)
 						left.draw();
 					tmp = nearest;
 					nearest = _nearest(root.right, p, right, nearest);
-					draw_if_different(tmp, nearest, champ);
 					if (tmp != nearest)
 						right.draw();
 				} else {
@@ -248,9 +208,7 @@ public class KdTree
 					if (tmp != nearest)
 						right.draw();
 					tmp = nearest;
-					draw_if_different(tmp, nearest, champ);
 					nearest = _nearest(root.left, p, left, nearest);
-					draw_if_different(tmp, nearest, champ);
 					if (tmp != nearest)
 						left.draw();
 				}
@@ -264,23 +222,19 @@ public class KdTree
 				if (p.y() < point.y()) {
 					Point2D tmp = nearest;
 					nearest = _nearest(root.left, p, left, nearest);
-					draw_if_different(tmp, nearest, champ);
 					if (tmp != nearest)
 						left.draw();
 					tmp = nearest;
 					nearest = _nearest(root.right, p, right, nearest);
-					draw_if_different(tmp, nearest, champ);
 					if (tmp != nearest)
 						right.draw();
 				} else  {
 					Point2D tmp = nearest;
 					nearest = _nearest(root.right, p, right, nearest);
-					draw_if_different(tmp, nearest, champ);
 					if (tmp != nearest)
 						right.draw();
 					tmp = nearest;
 					nearest = _nearest(root.left, p, left, nearest);
-					draw_if_different(tmp, nearest, champ);
 					if (tmp != nearest)
 						left.draw();
 				}
@@ -290,12 +244,13 @@ public class KdTree
 
 		java.awt.Color color = StdDraw.getPenColor();
 		StdDraw.setPenRadius(0.005);
+		StdDraw.setPenColor(StdDraw.CYAN);
 		root.point.draw();
 		StdDraw.setPenColor(StdDraw.MAGENTA);
-		StdDraw.setPenRadius(0.001);
+		StdDraw.setPenRadius(0.0007);
 		root.point.drawTo(nearest);
 		StdDraw.setPenColor(StdDraw.CYAN);
-		StdDraw.setPenRadius(0.003);
+		StdDraw.setPenRadius(0.002);
 		if (old != null)
 			old.drawTo(nearest);
 		StdDraw.setPenColor(color);
@@ -305,6 +260,7 @@ public class KdTree
 	// a nearest neighbor in the set to point p; null if the set is empty
 	public Point2D nearest(Point2D p) {
 		// color_picked = 0;
+		counter = 0;
 		return _nearest(root, p, new RectHV(0, 0, 1, 1), null);
 	}
 

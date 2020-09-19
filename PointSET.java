@@ -4,10 +4,13 @@ import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.ResizingArrayBag;
 
 public class PointSET
 {
 	private final SET<Point2D> set;
+
+	public ResizingArrayBag<Point2D> points = new ResizingArrayBag<Point2D>();
 
 	// construct an empty set of points
 	public PointSET() { set = new SET<Point2D>(); }
@@ -23,6 +26,7 @@ public class PointSET
 		if (p == null)
 			throw new IllegalArgumentException("insert: null argument");
 		set.add(p);
+		points.add(p);
 	}
 
 	// does the set contain point p?
