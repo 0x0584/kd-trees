@@ -55,37 +55,50 @@ public class KdTree
 		if (root != null) {
 			Point2D point = root.point, min, max;
 			RectHV left, right;
+			java.awt.Color line;
 
 			if (root.is_vert) {
-				StdDraw.setPenColor(StdDraw.BOOK_RED);
+				line = StdDraw.BOOK_RED;
 				min = new Point2D(point.x(), rect.ymin());
 				max = new Point2D(point.x(), rect.ymax());
 				left = new RectHV(rect.xmin(), rect.ymin(), point.x(), rect.ymax());
 				right = new RectHV(point.x(), rect.ymin(), rect.xmax(), rect.ymax());
 			} else {
-				StdDraw.setPenColor(StdDraw.BOOK_BLUE);
+				line = StdDraw.BOOK_BLUE;
 				min = new Point2D(rect.xmin(), point.y());
 				max = new Point2D(rect.xmax(), point.y());
 				left = new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), point.y());
 				right = new RectHV(rect.xmin(), point.y(), rect.xmax(), rect.ymax());
 			}
+			StdDraw.setPenColor(line);
 			StdDraw.setPenRadius(0.001);
 			min.drawTo(max);
-			StdDraw.setPenRadius(i == 0 ? 0.01 : 0.005);
+			StdDraw.setPenRadius(0.001);
 			StdDraw.setPenColor(color);
 			point.draw();
-			StdDraw.show();
-			StdDraw.save(png + "-" + i + ".png");
-			i++;
-			draw(root.left, left, i, StdDraw.CYAN);
-			draw(root.right, right, i, StdDraw.MAGENTA);
+			/* /\* StdDraw.show(); *\/ */
+			/* /\* if (++i % log2(size_) == 0) *\/ */
+			/* /\* 	StdDraw.save(png + "-" + i + ".png"); *\/ */
+			draw(root.left, left, i, color);
+			StdDraw.setPenColor(color);
+			point.draw();
+			draw(root.right, right, i, color);
+			StdDraw.setPenColor(color);
+			point.draw();
+			StdDraw.setPenRadius(0.001);
+			StdDraw.setPenColor(line);
+			min.drawTo(max);
 		}
 	}
+
+	public static int log2(int x) { return (int) (Math.log(x) / Math.log(2)); }
 
 	// draw all points to standard draw
 	public void draw() {
 		StdDraw.enableDoubleBuffering();
-		draw(root, new RectHV(0, 0, 1, 1), 0, StdDraw.BLACK);
+		StdDraw.setPenColor(StdDraw.BLACK);
+		StdDraw.filledSquare(0.5 ,0.5, 0.5);
+		draw(root, new RectHV(0, 0, 1, 1), 0, StdDraw.CYAN);
 	}
 
 	private KdNode make_tree(KdNode root, Point2D p, boolean is_vertical) {
@@ -150,6 +163,47 @@ public class KdTree
 		return queue;
 	}
 
+	boolean set_nearest(RectHV rect, Point2D old_near, Point2D new_near, boolean left, boolean is_vert) {
+		// if (old_near != new_near) {
+		// 	if (color_picked == 0){
+		// 		color = StdDraw.getPenColor();
+		// 		StdDraw.setPenColor(StdDraw.MAGENTA);
+		// 		StdDraw.setPenRadius(0.001);
+		// 		rect.draw();
+		// 		StdDraw.setPenColor(left ? StdDraw.CYAN : StdDraw.MAGENTA);
+		// 		StdDraw.setPenRadius(0.01);
+		// 		new_near.draw();
+		// 		color_picked++;
+		// 	} else {
+		// 		StdDraw.setPenRadius(0.01 - 0.01 / color_picked);
+		// 		StdDraw.setPenColor(255, 140, (5 * color_picked) % 255);
+		// 		new_near.draw();
+		// 		color_picked++;
+		// 	}
+		// 	return true;
+		// }
+		old_near = new_near;
+		return false;
+	}
+
+	void draw_if_different(Point2D tmp, Point2D nearest, Point2D champ) {
+		if (tmp != nearest) {
+			double size = StdDraw.getPenRadius();
+			StdDraw.setPenRadius(0.005);
+			java.awt.Color color = StdDraw.getPenColor();
+			StdDraw.setPenColor(StdDraw.MAGENTA);
+			if (nearest != null)
+				nearest.draw();
+			StdDraw.setPenColor(color);
+			// StdDraw.setPenColor(StdDraw.MAGENTA);
+			// if (champ != null)
+			// 	champ.draw();
+			// StdDraw.setPenColor(StdDraw.ORANGE);
+			// if (tmp != null)
+			// 	tmp.draw();
+			// StdDraw.setPenRadius(size);
+		}
+	}
 	private Point2D _nearest(KdNode root, Point2D p, RectHV rect, Point2D champ) {
 		if (root == null) return champ;
 
@@ -161,6 +215,7 @@ public class KdTree
 			p2rect = rect.distanceSquaredTo(p);
 		}
 
+		Point2D old = nearest;
 		if (nearest == null || p2near > p2rect) {
 			Point2D point = root.point;
 			RectHV left, right;
@@ -171,29 +226,47 @@ public class KdTree
 				left = new RectHV(rect.xmin(), rect.ymin(), point.x(), rect.ymax());
 				right = new RectHV(point.x(), rect.ymin(), rect.xmax(), rect.ymax());
 				if (p.x() < point.x()) {
+					Point2D tmp = nearest;
 					nearest = _nearest(root.left, p, left, nearest);
+					draw_if_different(tmp, nearest, champ);
+					tmp = nearest;
 					nearest = _nearest(root.right, p, right, nearest);
-				} else  {
+					draw_if_different(tmp, nearest, champ);
+				} else {
+					Point2D tmp = nearest;
 					nearest = _nearest(root.right, p, right, nearest);
+					tmp = nearest;
+					draw_if_different(tmp, nearest, champ);
 					nearest = _nearest(root.left, p, left, nearest);
+					draw_if_different(tmp, nearest, champ);
 				}
 			} else {
 				left = new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), point.y());
 				right = new RectHV(rect.xmin(), point.y(), rect.xmax(), rect.ymax());
 				if (p.y() < point.y()) {
+					Point2D tmp = nearest;
 					nearest = _nearest(root.left, p, left, nearest);
+					draw_if_different(tmp, nearest, champ);
+					tmp = nearest;
 					nearest = _nearest(root.right, p, right, nearest);
+					draw_if_different(tmp, nearest, champ);
 				} else  {
+					Point2D tmp = nearest;
 					nearest = _nearest(root.right, p, right, nearest);
+					draw_if_different(tmp, nearest, champ);
+					tmp = nearest;
 					nearest = _nearest(root.left, p, left, nearest);
+					draw_if_different(tmp, nearest, champ);
 				}
 			}
 		}
+
 		return nearest;
 	}
 
 	// a nearest neighbor in the set to point p; null if the set is empty
 	public Point2D nearest(Point2D p) {
+		// color_picked = 0;
 		return _nearest(root, p, new RectHV(0, 0, 1, 1), null);
 	}
 
@@ -208,6 +281,7 @@ public class KdTree
 			kdtree.insert(p);
 		}
 		kdtree.draw();
+		StdDraw.show();
 		StdDraw.save(args[0].split("\\.(?=[^\\.]+$)")[0] + ".png");
 	}
 
