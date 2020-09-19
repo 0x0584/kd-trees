@@ -12,9 +12,9 @@ public class KdTree
 {
 	private final class KdNode
 	{
-		private Point2D point;
+		private final Point2D point;
 		private KdNode left, right;
-		private boolean is_vert;
+		private final boolean is_vert;
 
 		public KdNode(KdNode left, Point2D point, KdNode right, boolean is_vert) {
 			this.left = left;
@@ -55,8 +55,8 @@ public class KdTree
 		}
 	}
 
-	KdNode root;
-	int size_;
+	private KdNode root;
+	private int size_;
 
 	// construct an empty set of points
 	public KdTree() { root = null; size_ = 0; }
@@ -164,9 +164,51 @@ public class KdTree
 		return queue;
 	}
 
+	private Point2D _nearest(KdNode root, Point2D p, RectHV rect, Point2D champ) {
+		if (root == null) return champ;
+
+		Point2D nearest = champ;
+		double p2near = 0.0, p2rect = 0.0;
+
+		if (nearest != null) {
+			p2near = p.distanceSquaredTo(nearest);
+			p2rect = rect.distanceSquaredTo(p);
+		}
+
+		if (nearest == null || p2near > p2rect) {
+			Point2D point = root.point;
+			RectHV left, right;
+
+			if (nearest == null || p2near > point.distanceSquaredTo(p))
+				nearest = point;
+			if (root.is_vert) {
+				left = new RectHV(rect.xmin(), rect.ymin(), point.x(), rect.ymax());
+				right = new RectHV(point.x(), rect.ymin(), rect.xmax(), rect.ymax());
+				if (p.x() < point.x()) {
+					nearest = _nearest(root.left, p, left, nearest);
+					nearest = _nearest(root.right, p, right, nearest);
+				} else  {
+					nearest = _nearest(root.right, p, right, nearest);
+					nearest = _nearest(root.left, p, left, nearest);
+				}
+			} else {
+				left = new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), point.y());
+				right = new RectHV(rect.xmin(), point.y(), rect.xmax(), rect.ymax());
+				if (p.y() < point.y()) {
+					nearest = _nearest(root.left, p, left, nearest);
+					nearest = _nearest(root.right, p, right, nearest);
+				} else  {
+					nearest = _nearest(root.right, p, right, nearest);
+					nearest = _nearest(root.left, p, left, nearest);
+				}
+			}
+		}
+		return nearest;
+	}
+
 	// a nearest neighbor in the set to point p; null if the set is empty
 	public Point2D nearest(Point2D p) {
-		return p;
+		return _nearest(root, p, new RectHV(0, 0, 1, 1), null);
 	}
 
 	// unit testing of the methods (optional)
