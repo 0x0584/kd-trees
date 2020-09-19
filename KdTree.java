@@ -187,14 +187,14 @@ public class KdTree
 	}
 
 	void draw_if_different(Point2D tmp, Point2D nearest, Point2D champ) {
-		if (tmp != nearest) {
-			double size = StdDraw.getPenRadius();
-			StdDraw.setPenRadius(0.005);
-			java.awt.Color color = StdDraw.getPenColor();
-			StdDraw.setPenColor(StdDraw.MAGENTA);
-			if (nearest != null)
-				nearest.draw();
-			StdDraw.setPenColor(color);
+		// if (tmp != nearest) {
+			// double size = StdDraw.getPenRadius();
+			// StdDraw.setPenRadius(0.01);
+			// java.awt.Color color = StdDraw.getPenColor();
+			// StdDraw.setPenColor(StdDraw.MAGENTA);
+			// if (nearest != null)
+			// 	nearest.draw();
+			// StdDraw.setPenColor(color);
 			// StdDraw.setPenColor(StdDraw.MAGENTA);
 			// if (champ != null)
 			// 	champ.draw();
@@ -202,7 +202,7 @@ public class KdTree
 			// if (tmp != null)
 			// 	tmp.draw();
 			// StdDraw.setPenRadius(size);
-		}
+		// }
 	}
 	private Point2D _nearest(KdNode root, Point2D p, RectHV rect, Point2D champ) {
 		if (root == null) return champ;
@@ -220,47 +220,85 @@ public class KdTree
 			Point2D point = root.point;
 			RectHV left, right;
 
+			java.awt.Color color = StdDraw.getPenColor();
+
 			if (nearest == null || p2near > point.distanceSquaredTo(p))
 				nearest = point;
 			if (root.is_vert) {
+				StdDraw.setPenColor(StdDraw.BOOK_RED);
+				StdDraw.setPenRadius(0.003);
 				left = new RectHV(rect.xmin(), rect.ymin(), point.x(), rect.ymax());
 				right = new RectHV(point.x(), rect.ymin(), rect.xmax(), rect.ymax());
+				left.draw();
+				right.draw();
 				if (p.x() < point.x()) {
 					Point2D tmp = nearest;
 					nearest = _nearest(root.left, p, left, nearest);
 					draw_if_different(tmp, nearest, champ);
+					if (tmp != nearest)
+						left.draw();
 					tmp = nearest;
 					nearest = _nearest(root.right, p, right, nearest);
 					draw_if_different(tmp, nearest, champ);
+					if (tmp != nearest)
+						right.draw();
 				} else {
 					Point2D tmp = nearest;
 					nearest = _nearest(root.right, p, right, nearest);
+					if (tmp != nearest)
+						right.draw();
 					tmp = nearest;
 					draw_if_different(tmp, nearest, champ);
 					nearest = _nearest(root.left, p, left, nearest);
 					draw_if_different(tmp, nearest, champ);
+					if (tmp != nearest)
+						left.draw();
 				}
 			} else {
 				left = new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), point.y());
 				right = new RectHV(rect.xmin(), point.y(), rect.xmax(), rect.ymax());
+				StdDraw.setPenColor(StdDraw.BOOK_BLUE);
+				StdDraw.setPenRadius(0.003);
+				left.draw();
+				right.draw();
 				if (p.y() < point.y()) {
 					Point2D tmp = nearest;
 					nearest = _nearest(root.left, p, left, nearest);
 					draw_if_different(tmp, nearest, champ);
+					if (tmp != nearest)
+						left.draw();
 					tmp = nearest;
 					nearest = _nearest(root.right, p, right, nearest);
 					draw_if_different(tmp, nearest, champ);
+					if (tmp != nearest)
+						right.draw();
 				} else  {
 					Point2D tmp = nearest;
 					nearest = _nearest(root.right, p, right, nearest);
 					draw_if_different(tmp, nearest, champ);
+					if (tmp != nearest)
+						right.draw();
 					tmp = nearest;
 					nearest = _nearest(root.left, p, left, nearest);
 					draw_if_different(tmp, nearest, champ);
+					if (tmp != nearest)
+						left.draw();
 				}
 			}
+			StdDraw.setPenColor(color);
 		}
 
+		java.awt.Color color = StdDraw.getPenColor();
+		StdDraw.setPenRadius(0.005);
+		root.point.draw();
+		StdDraw.setPenColor(StdDraw.MAGENTA);
+		StdDraw.setPenRadius(0.001);
+		root.point.drawTo(nearest);
+		StdDraw.setPenColor(StdDraw.CYAN);
+		StdDraw.setPenRadius(0.003);
+		if (old != null)
+			old.drawTo(nearest);
+		StdDraw.setPenColor(color);
 		return nearest;
 	}
 
