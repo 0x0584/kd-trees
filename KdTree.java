@@ -16,6 +16,9 @@ public class KdTree
 		private KdNode left, right;
 		private final boolean is_vert;
 
+		int i = 0;
+		String png;
+
 		public KdNode(KdNode left, Point2D point, KdNode right, boolean is_vert) {
 			this.left = left;
 			this.point = point;
@@ -33,33 +36,14 @@ public class KdTree
 			return (is_vertical && point.x() > p.x())
 				|| (!is_vertical && point.y() > p.y());
 		}
-
-		public void drawUp() {
-			StdDraw.setPenColor(StdDraw.RED);
-			point.drawTo(new Point2D(point.x(), 1));
-		}
-
-		public void drawDown() {
-			StdDraw.setPenColor(StdDraw.RED);
-			point.drawTo(new Point2D(point.x(), 0));
-		}
-
-		public void drawLeft() {
-			StdDraw.setPenColor(StdDraw.BLUE);
-			point.drawTo(new Point2D(1, point.y()));
-		}
-
-		public void drawRight() {
-			StdDraw.setPenColor(StdDraw.BLUE);
-			point.drawTo(new Point2D(0, point.y()));
-		}
 	}
 
 	private KdNode root;
 	private int size_;
 
+	String png ;
 	// construct an empty set of points
-	public KdTree() { root = null; size_ = 0; }
+	public KdTree(String s) { png = s; root = null; size_ = 0; }
 
 	// is the set empty?
 	public boolean isEmpty() { return size_ == 0; }
@@ -67,19 +51,19 @@ public class KdTree
 	// number of points in the set
 	public int size() { return size_; }
 
-	private void draw(KdNode root, RectHV rect) {
+	private void draw(KdNode root, RectHV rect, Integer i, java.awt.Color color) {
 		if (root != null) {
 			Point2D point = root.point, min, max;
 			RectHV left, right;
 
 			if (root.is_vert) {
-				StdDraw.setPenColor(StdDraw.RED);
+				StdDraw.setPenColor(StdDraw.BOOK_RED);
 				min = new Point2D(point.x(), rect.ymin());
 				max = new Point2D(point.x(), rect.ymax());
 				left = new RectHV(rect.xmin(), rect.ymin(), point.x(), rect.ymax());
 				right = new RectHV(point.x(), rect.ymin(), rect.xmax(), rect.ymax());
 			} else {
-				StdDraw.setPenColor(StdDraw.BLUE);
+				StdDraw.setPenColor(StdDraw.BOOK_BLUE);
 				min = new Point2D(rect.xmin(), point.y());
 				max = new Point2D(rect.xmax(), point.y());
 				left = new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), point.y());
@@ -87,19 +71,21 @@ public class KdTree
 			}
 			StdDraw.setPenRadius(0.001);
 			min.drawTo(max);
-			StdDraw.setPenRadius(0.01);
-			StdDraw.setPenColor(StdDraw.BLACK);
+			StdDraw.setPenRadius(i == 0 ? 0.01 : 0.005);
+			StdDraw.setPenColor(color);
 			point.draw();
 			StdDraw.show();
-			draw(root.left, left);
-			draw(root.right, right);
+			StdDraw.save(png + "-" + i + ".png");
+			i++;
+			draw(root.left, left, i, StdDraw.CYAN);
+			draw(root.right, right, i, StdDraw.MAGENTA);
 		}
 	}
 
 	// draw all points to standard draw
 	public void draw() {
 		StdDraw.enableDoubleBuffering();
-		draw(root, new RectHV(0, 0, 1, 1));
+		draw(root, new RectHV(0, 0, 1, 1), 0, StdDraw.BLACK);
 	}
 
 	private KdNode make_tree(KdNode root, Point2D p, boolean is_vertical) {
@@ -146,10 +132,10 @@ public class KdTree
 			if (query.contains(point))
 				queue.enqueue(point);
 			if (root.is_vert) {
-				left = new RectHV(rect.xmin(), rect.ymin(), point.x(), rect.ymax());
+				left  = new RectHV(rect.xmin(), rect.ymin(), point.x(), rect.ymax());
 				right = new RectHV(point.x(), rect.ymin(), rect.xmax(), rect.ymax());
 			} else {
-				left = new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), point.y());
+				left  = new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), point.y());
 				right = new RectHV(rect.xmin(), point.y(), rect.xmax(), rect.ymax());
 			}
 			range(root.left, query, left, queue);
@@ -214,7 +200,7 @@ public class KdTree
 	// unit testing of the methods (optional)
 	public static void main(String[] args) {
 		In in = new In(args[0]);
-        KdTree kdtree = new KdTree();
+        KdTree kdtree = new KdTree(args[0].split("\\.(?=[^\\.]+$)")[0]);
 		while (!in.isEmpty()) {
 			double x = in.readDouble();
 			double y = in.readDouble();
@@ -222,6 +208,7 @@ public class KdTree
 			kdtree.insert(p);
 		}
 		kdtree.draw();
+		StdDraw.save(args[0].split("\\.(?=[^\\.]+$)")[0] + ".png");
 	}
 
 }
