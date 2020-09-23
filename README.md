@@ -16,5 +16,5 @@
 
 | 1K | 10K |
 |:-:|:-:|
-|  |  
-|  |  
+| ![](https://github.com/0x0584/kd-trees/blob/master/range-1K.gif) | ![](https://github.com/0x0584/kd-trees/blob/master/range-10K.gif) |  
+  
