@@ -142,24 +142,40 @@ public class KdTree
 			Point2D point = root.point;
 			RectHV left, right;
 
+			java.awt.Color color = StdDraw.getPenColor();
+			StdDraw.setPenRadius(StdDraw.getPenRadius() + 0.0001);
+
 			if (query.contains(point))
 				queue.enqueue(point);
 			if (root.is_vert) {
+				StdDraw.setPenColor(0x9E, 0x11, 0x18);
 				left  = new RectHV(rect.xmin(), rect.ymin(), point.x(), rect.ymax());
+				left.draw();
+				StdDraw.setPenColor(0xD1, 0x17, 0x20);
 				right = new RectHV(point.x(), rect.ymin(), rect.xmax(), rect.ymax());
+				right.draw();
 			} else {
+				StdDraw.setPenColor(0x0B, 0x2F, 0x52);
 				left  = new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), point.y());
+				left.draw();
+				StdDraw.setPenColor(0x16, 0x5A, 0x9E);
 				right = new RectHV(rect.xmin(), point.y(), rect.xmax(), rect.ymax());
+				right.draw();
 			}
+			StdDraw.setPenColor(color);
 			range(root.left, query, left, queue);
 			range(root.right, query, right, queue);
+			StdDraw.setPenRadius(StdDraw.getPenRadius() - 0.0001);
 		}
 	}
 
 	// all points that are inside the rectangle (or on the boundary)
 	public Iterable<Point2D> range(RectHV rect) {
 		Queue<Point2D> queue = new Queue<Point2D>();
+		double rad = StdDraw.getPenRadius();
+		StdDraw.setPenRadius(0.001);
 		range(root, rect, new RectHV(0, 0, 1, 1), queue);
+		StdDraw.setPenRadius(rad);
 		return queue;
 	}
 

@@ -39,15 +39,30 @@ public class RangeSearchVisualizer {
         boolean isDragging = false;     // is the user dragging a rectangle
 
         // draw the points
-        StdDraw.clear();
-        StdDraw.setPenColor(StdDraw.BLACK);
-        StdDraw.setPenRadius(0.01);
-        brute.draw();
-        StdDraw.show();
+        // StdDraw.clear();
+		// StdDraw.setPenColor(StdDraw.BLACK);
+		// StdDraw.filledSquare(0.5 ,0.5, 0.5);
+		// StdDraw.setPenColor(StdDraw.CYAN);
+		// brute.draw();
+        // StdDraw.show();
 
+		StdDraw.clear();
+		// StdDraw.setPenColor(StdDraw.BLACK);
+		// StdDraw.filledSquare(0.5 ,0.5, 0.5);
+		// StdDraw.setPenColor(StdDraw.CYAN);
+		// StdDraw.setPenRadius(0.001);
+		kdtree.draw();
+
+		int k = 0;
         // process range search queries
         StdDraw.enableDoubleBuffering();
         while (true) {
+			double xtmp = x1, ytmp = y1;
+
+			if (!isDragging) {
+                x0 = x1 = StdDraw.mouseX();
+                y0 = y1 = StdDraw.mouseY();
+			}
 
             // user starts to drag a rectangle
             if (StdDraw.isMousePressed() && !isDragging) {
@@ -68,31 +83,34 @@ public class RangeSearchVisualizer {
             }
 
             // draw the points
-            StdDraw.clear();
-            StdDraw.setPenColor(StdDraw.BLACK);
-            StdDraw.setPenRadius(0.01);
-            brute.draw();
+			StdDraw.clear();
+			// StdDraw.setPenColor(StdDraw.BLACK);
+			// StdDraw.filledSquare(0.5 ,0.5, 0.5);
+			// StdDraw.setPenColor(StdDraw.CYAN);
+            // StdDraw.setPenRadius(0.001);
+            StdDraw.setPenRadius(0.001);
+            StdDraw.setPenColor(StdDraw.CYAN);
+			kdtree.draw();
 
             // draw the rectangle
             RectHV rect = new RectHV(Math.min(x0, x1), Math.min(y0, y1),
                                      Math.max(x0, x1), Math.max(y0, y1));
-            StdDraw.setPenColor(StdDraw.BLACK);
-            StdDraw.setPenRadius();
+            StdDraw.setPenColor(StdDraw.MAGENTA);
+            StdDraw.setPenRadius(0.001);
             rect.draw();
 
             // draw the range search results for brute-force data structure in red
-            StdDraw.setPenRadius(0.03);
-            StdDraw.setPenColor(StdDraw.RED);
-            for (Point2D p : brute.range(rect))
-                p.draw();
-
-            // draw the range search results for kd-tree in blue
-            StdDraw.setPenRadius(0.02);
-            StdDraw.setPenColor(StdDraw.BLUE);
+            StdDraw.setPenRadius(0.005);
+            StdDraw.setPenColor(StdDraw.CYAN);
             for (Point2D p : kdtree.range(rect))
                 p.draw();
 
+
             StdDraw.show();
+			if (xtmp != x1 || y1 != ytmp) {
+				StdDraw.save("range-" + k + ".png");
+				k++;
+			}
             StdDraw.pause(20);
         }
     }

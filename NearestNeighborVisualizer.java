@@ -81,7 +81,7 @@ public class NearestNeighborVisualizer {
 			StdDraw.show();
 			StdDraw.save(args[0].split("\\.(?=[^\\.]+$)")[0] + "-near-" + i + ".png");
 			i++;
-            // StdDraw.pause(30);
+            StdDraw.pause(20);
         }
             StdDraw.clear();
 			// kdtree.draw();
