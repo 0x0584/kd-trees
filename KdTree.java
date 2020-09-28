@@ -42,6 +42,8 @@ public class KdTree
 	private int size_;
 
 	String png ;
+	int tmp = 0;
+
 	// construct an empty set of points
 	public KdTree(String s) { png = s; root = null; size_ = 0; }
 
@@ -95,6 +97,7 @@ public class KdTree
 
 	// draw all points to standard draw
 	public void draw() {
+		counter = 0;
 		StdDraw.enableDoubleBuffering();
 		StdDraw.setPenColor(StdDraw.BLACK);
 		StdDraw.filledSquare(0.5 ,0.5, 0.5);
@@ -119,6 +122,10 @@ public class KdTree
 			throw new IllegalArgumentException("insert: null argument");
 		root = make_tree(root, p, true);
 		size_ += 1;
+		draw();
+		StdDraw.show();
+		StdDraw.save(png + "-" + tmp + ".png");
+		tmp++;
 	}
 
 	private boolean contains(KdNode root, Point2D p) {
